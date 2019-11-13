@@ -1,5 +1,6 @@
 # flutter_auth
 blog: https://hackernoon.com/instagram-authentication-with-flutter-df6424d2d56c
+
 An example of an app with Instagram Authentication on Flutter.
 
 # Installation and Usage
