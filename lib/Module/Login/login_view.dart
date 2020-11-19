@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_auth/Module/Login/login_presenter.dart';
-import 'package:flutter_auth/instagram.dart';
+import 'package:auth_social/Module/Login/login_presenter.dart';
+import 'package:auth_social/instagram.dart';
 
 class LoginPage extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();

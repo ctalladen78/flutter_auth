@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:flutter_auth/instagram.dart' as insta;
-import 'package:flutter_auth/constants.dart';
+import 'package:auth_social/instagram.dart' as insta;
+import 'package:auth_social/constants.dart';
 
 abstract class LoginViewContract {
   void onLoginScuccess(insta.Token token);
