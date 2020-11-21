@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fir; 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_twitter_login/flutter_twitter_login.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:auth_social/Module/Login/login_view.dart';
 import 'package:auth_social/home_screen.dart';
 
@@ -24,52 +24,45 @@ void main() async {
 class LoginPage extends StatelessWidget{
 
   final fir.FirebaseAuth _firauth = fir.FirebaseAuth.instance;
-  final TwitterLogin twitterLogin = TwitterLogin(
-    consumerKey: "IoJiMkAVEmjjkQoIExzAn69xE",
-    consumerSecret: "ZCa3waPjr9HM5xHDgSDcLjiGqy6jBeQ6DlVyAa5uOkDG09bLOU",
-  );
-  // Create a credential from the access token
-  // final AuthCredential twitterAuthCredential =
-  //   TwitterAuthProvider.credential(accessToken: token, secret: secret);
-  // Once signed in, return the UserCredential
-  // UserCredential user = await FirebaseAuth.instance.signInWithCredential(twitterAuthCredential); 
+  final GoogleSignIn googleSignIn = GoogleSignIn();
 
-  Future<Map<String,dynamic>> signInWithTwitter() async {
-    // twitter認証の許可画面が出現
-    final TwitterLoginResult result = await twitterLogin.authorize();
+  LoginPage(){
+    checkSession();
+  }
 
-    // github.com/maedaouka/kosan-syoumei
-    //Firebaseのユーザー情報にアクセス & 情報の登録 & 取得
-    // final AuthCredential credential = TwitterAuthProvider.getCredential(
-      // authToken: result.session.token,
-      // authTokenSecret: result.session.secret,
-    fir.AuthCredential _credential;
-    if(TwitterLoginStatus.loggedIn == true){
-      _credential = fir.TwitterAuthProvider.credential(
-        accessToken: result.session.token,
-        secret: result.session.secret,
-      );
-    }
+  void checkSession() async {
+
+  }
+
+
+  Future<fir.User> signInSocial() async{
+    // Create a credential from the access token
+    // final AuthCredential twitterAuthCredential =
+    //   TwitterAuthProvider.credential(accessToken: token, secret: secret);
+    final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
+    final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
+
+    final fir.AuthCredential _credential = fir.GoogleAuthProvider.credential(
+      accessToken: googleSignInAuthentication.accessToken,
+      idToken: googleSignInAuthentication.idToken,
+    );
 
     //Firebaseのuser id取得
     final fir.User user = (await _firauth.signInWithCredential(_credential)).user;
 
-    assert(!user.isAnonymous);
-    assert(await user.getIdToken() != null);
+    if (user != null) {
+      assert(!user.isAnonymous);
+      assert(await user.getIdToken() != null);
 
-    //  final FirebaseUser currentUser = await _auth.currentUser();
-    fir.User currentUser =  _firauth.currentUser;
-    assert(user.uid == currentUser.uid);
+      final fir.User currentUser = _firauth.currentUser;
+      assert(user.uid == currentUser.uid);
 
-    // login(user, result.session.token, result.session.secret);
+      // var firtok1 = _credential.token; // auth_credential
+      return _userFromFirebaseUser(user);
+    }
+    return null;
+  }
 
-    var firtok1 = _credential.token; // auth_credential
-    return {
-      "user": user,
-      "twtoken": result.session.token,
-      "twsecret": result.session.secret,
-    };
- }
   // TODO test firebase auth using anonymous
   // https://github.com/asadakber/coffe_app/blob/master/lib/services/auth.dart
   Future<fir.User> signInAnom() async {
@@ -84,13 +77,14 @@ class LoginPage extends StatelessWidget{
         return null;
     }
   }
+
   fir.User _userFromFirebaseUser(fir.User user) {
     print(user.uid);
     return user;
   }
 
   // auth response changes user stream
-  Stream<fir.User> get user {
+  Stream<fir.User> get _user {
     return _firauth.onAuthStateChanged
         //.map((FirebaseUser user) => _userFromFirebaseUser(user));
     .map(_userFromFirebaseUser);
@@ -129,8 +123,8 @@ class LoginPage extends StatelessWidget{
               color: Colors.lightBlue[300]),
             child: GestureDetector(
               onTap: (){
-                signInWithTwitter().then((user) =>
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()))
+                signInSocial().then((user) =>
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen(user:user)))
                 );
               },
               child: Text("Login with Twitter", style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold))

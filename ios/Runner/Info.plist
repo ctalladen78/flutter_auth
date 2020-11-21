@@ -57,6 +57,14 @@
 				<string>twitterkit-JWDztGg2AMcXeJ6eI5SQqDyw8</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.264447991859-flcjnd7gcq4dha0mkf1c40d1s5ppdms4</string>
+			</array>
+		</dict>
 	</array>
 </dict>
 </plist>

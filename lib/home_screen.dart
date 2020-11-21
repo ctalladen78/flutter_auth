@@ -3,15 +3,16 @@ import 'package:dio/dio.dart' as dio;
 // import 'userobject.dart';
 import 'dart:async';
 import 'dart:convert' as convert;
-import 'package:firebase_auth/firebase_auth.dart' as auth; 
+import 'package:firebase_auth/firebase_auth.dart' as fir; 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class HomeScreen extends StatefulWidget {
   String accessToken;
   String accessSecret;
   String userId;
   String userName;
-  auth.User user;
+  fir.User user;
   HomeScreen({Key key,this.userName, this.userId,this.accessToken,this.accessSecret, this.user}) : super(key: key);
 
   @override
@@ -25,6 +26,13 @@ flutter: LOGIN SUCCESS TOKEN 1478875920-gLQ8eDKJoaA3lDayDLhDQXO0vAfNhOhW98uBKqW
 flutter: LOGIN SUCCESS SECRET 3jnN6YZwu5QCQL7xCjOzlXFIE6q4PJrGVon4VLyc0EjIU
  */
 class _HomeScreenState extends State<HomeScreen> {
+
+  final GoogleSignIn googleSignIn = GoogleSignIn();
+
+  Future<void> logOut()async{
+    await googleSignIn.signOut();
+  }
+
   // TODO get request to rebuild twitter profile
   // https://firebase.google.com/docs/reference/android/com/google/firebase/auth/TwitterAuthProvider
   // https://firebase.google.com/docs/admin/setup
