@@ -13,6 +13,9 @@ dependencies:
   firebase_auth:
   oauth1:
   dio:
+  flutter_twitter_login:
+    git: git://github.com/eudangeld/flutter_twitter_login.git
+  twitter_api:
 
 dev_dependencies:
   flutter_test:

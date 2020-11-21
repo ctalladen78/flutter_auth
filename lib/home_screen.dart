@@ -35,9 +35,9 @@ class _HomeScreenState extends State<HomeScreen> {
     // POST backend -data session_object
     var tok = await widget.user.getIdToken();
     print("FIREBASE TOKEN $tok");
-    String userUrl = "http://localhost:5000/signin";
+    String userUrl = "http://localhost:5000/signin";// http://localhost:5000/signin
     var _data = {
-      "firetoken": tok,
+      "fire_token": tok,
       "twtoken":widget.accessToken,
       "twsecret": widget.accessSecret,
       "uid": int.parse(widget.userId),
@@ -46,14 +46,15 @@ class _HomeScreenState extends State<HomeScreen> {
       // "consumer_secret":""
     };
     var response = await dio.Dio().post(userUrl,data:_data);
-    var userString = convert.jsonDecode(response.data);
+    // var userString = convert.jsonDecode(response.data);
 
     if(response.statusCode == 200){
-      print("USER PROFILE DETAILS${userString}");
+      print("USER PROFILE DETAILS${response.data}");
       // var user = UserObject();
       // return user;
     }
     // return UserObject();
+      print("SIGN IN${response.data}");
   }
 
   Widget buildProfile(){
@@ -76,6 +77,13 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       }
     );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    // getUserProfile();
+    super.initState();
   }
 
 
