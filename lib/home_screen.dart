@@ -6,6 +6,8 @@ import 'dart:convert' as convert;
 import 'package:firebase_auth/firebase_auth.dart' as fir; 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
+import 'main.dart';
 
 class HomeScreen extends StatefulWidget {
   String accessToken;
@@ -27,7 +29,9 @@ flutter: LOGIN SUCCESS SECRET 3jnN6YZwu5QCQL7xCjOzlXFIE6q4PJrGVon4VLyc0EjIU
  */
 class _HomeScreenState extends State<HomeScreen> {
 
+  final fir.FirebaseAuth _firauth = fir.FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
+  final facebookLogin = FacebookLogin();
 
   Future<void> logOut()async{
     await googleSignIn.signOut();
@@ -37,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // https://firebase.google.com/docs/reference/android/com/google/firebase/auth/TwitterAuthProvider
   // https://firebase.google.com/docs/admin/setup
   // needs twitter auth sdk
-  Future<void> getUserProfile() async {
+  Future<Map<String,dynamic>> getUserProfile() async {
     // TODO send firebase auth token to backend for verification
     // TODO use backend golang library for getting authorized user lookup
     // POST backend -data session_object
@@ -46,42 +50,66 @@ class _HomeScreenState extends State<HomeScreen> {
     String userUrl = "http://localhost:5000/signin";// http://localhost:5000/signin
     var _data = {
       "fire_token": tok,
-      "twtoken":widget.accessToken,
-      "twsecret": widget.accessSecret,
-      "uid": int.parse(widget.userId),
-      "uname": widget.userName,
-      // "consumer_token":"",
-      // "consumer_secret":""
     };
     var response = await dio.Dio().post(userUrl,data:_data);
     // var userString = convert.jsonDecode(response.data);
 
     if(response.statusCode == 200){
-      print("USER PROFILE DETAILS${response.data}");
-      // var user = UserObject();
-      // return user;
-    }
-    // return UserObject();
       print("SIGN IN${response.data}");
+      print("DISPLAY NAME ${widget.user.displayName}");
+      print("EMAIL ${widget.user.email}");
+      print("AVATAR ${widget.user.photoURL}");
+      return {
+        "name": widget.user.displayName,
+        "email": widget.user.email,
+        "avatar": widget.user.photoURL,
+      };
+    }
+    return null;
   }
 
   Widget buildProfile(){
-    return FutureBuilder<void>(
+    return FutureBuilder<Map<String,dynamic>>(
       future: getUserProfile(),
       builder: (BuildContext context, AsyncSnapshot snapshot) {
-        var user = snapshot.data;
+        var userMap = snapshot.data;
       print("USER PROFILE DETAILS ${snapshot.data}");
         if(snapshot.hasData){
-          return Container(
-            decoration: BoxDecoration(color: Colors.blueAccent),
-            // child: Text("Login success", style: TextStyle(color: Colors.white))
-            child: Text(user.name)
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  decoration: BoxDecoration(color: Colors.blue[50]),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children:[
+                  CircleAvatar(
+                    backgroundImage: NetworkImage(userMap["avatar"]),
+                  ),
+                  Text(userMap["name"]),
+                  SizedBox(height:10),
+                  Text(userMap["email"])
+                ]),)
+              ],
+            )
           );
         }
         return Container(
           padding: EdgeInsets.all(20),
           decoration: BoxDecoration(color: Colors.greenAccent),
-          child: Text("Login success", style: TextStyle(color: Colors.white))
+          child: Column(children:[
+            Text("Login success", style: TextStyle(color: Colors.white)),
+            SizedBox(height: 50),
+            GestureDetector(
+              onTap: () async {
+                await googleSignIn.signOut();
+                await facebookLogin.logOut();
+                Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=> LoginPage()));
+              },
+              child: Text("Log out", style: TextStyle(color: Colors.white))
+            )
+          ])
         );
       }
     );
@@ -98,9 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: buildProfile()
-      )
+      body: buildProfile()
     );
   }
 }

@@ -14,6 +14,9 @@ dependencies:
   oauth1:
   dio:
   google_sign_in:
+  shared_preferences:
+  flutter_facebook_login:
+    git: https://github.com/smourier/flutter_facebook_login
 
 dev_dependencies:
   flutter_test:
